@@ -1,4 +1,4 @@
-from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpRequest, Http404, HttpResponseNotFound, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -14,10 +14,15 @@ all_challenges = {
     "september": "Learn Django for at least 20 minutes every day!",
     "october": "Eat no meat for the entire month!",
     "november": "Walk for at least 20 minutes every day!",
-    "december": "Learn Django for at least 20 minutes every day!"
+    "december": None
 }
 
 # Create your views here.
+
+
+def index(request):
+    months = list(all_challenges.keys())
+    return render(request, "challenges/index.html", {"months": months})
 
 
 def monthly_challenges_by_number(request: HttpRequest, month: int):
@@ -32,10 +37,13 @@ def monthly_challenges_by_number(request: HttpRequest, month: int):
 def monthly_challenges(request, month: str):
     try:
         challenge = all_challenges[month]
-        return HttpResponse(challenge)
+        return render(request, "challenges/challenge.html", {
+            "challenge_text": challenge,
+            "month": month
+        })
     except:
-        return HttpResponseNotFound("Month not found")
-    
+        raise Http404()
+
 # def show_months(request):
 #     try:
 #         months = list(all_challenges.keys())
